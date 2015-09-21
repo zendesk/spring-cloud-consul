@@ -30,6 +30,7 @@
 		<module>spring-cloud-consul-core</module>
 		<module>spring-cloud-consul-config</module>
 		<module>spring-cloud-consul-discovery</module>
+		<module>spring-cloud-consul-stream</module>
 		<!--<module>spring-cloud-consul-bus</module>-->
 		<module>spring-cloud-consul-sample</module>
 		<module>spring-cloud-starter-consul</module>
@@ -55,9 +56,9 @@
 	</build>
 
 	<properties>
-		<spring-cloud-bus.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-bus.version>
 		<spring-cloud-commons.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-commons.version>
 		<spring-cloud-netflix.version>1.1.0.BUILD-SNAPSHOT</spring-cloud-netflix.version>
+		<spring-cloud-stream.version>1.0.0.BUILD-SNAPSHOT</spring-cloud-stream.version>
 		<spring-integration-dsl.version>1.0.2.RELEASE</spring-integration-dsl.version>
 		<archaius.version>0.7.1</archaius.version>
 		<consul-api.version>1.1.6</consul-api.version>
@@ -79,7 +80,7 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-consul-bus</artifactId>
+				<artifactId>spring-cloud-consul-stream</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -95,11 +96,6 @@
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-starter-consul</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-starter-consul-bus</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -124,33 +120,18 @@
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
-				<artifactId>spring-cloud-bus</artifactId>
-				<version>${spring-cloud-bus.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>org.springframework.boot</groupId>
-						<artifactId>spring-boot-starter-amqp</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.springframework.integration</groupId>
-						<artifactId>spring-integration-amqp</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.springframework.cloud</groupId>
-						<artifactId>spring-cloud-spring-service-connector
-						</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.springframework.cloud</groupId>
-						<artifactId>spring-cloud-localconfig-connector
-						</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>org.springframework.cloud</groupId>
-						<artifactId>spring-cloud-cloudfoundry-connector
-						</artifactId>
-					</exclusion>
-				</exclusions>
+				<artifactId>spring-cloud-stream-binder-spi</artifactId>
+				<version>${spring-cloud-stream.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-stream-codec</artifactId>
+				<version>${spring-cloud-stream.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework.cloud</groupId>
+				<artifactId>spring-cloud-stream-binder-test</artifactId>
+				<version>${spring-cloud-stream.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
@@ -167,11 +148,6 @@
 						<artifactId>servlet-api</artifactId>
 					</exclusion>
 				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.integration</groupId>
-				<artifactId>spring-integration-java-dsl</artifactId>
-				<version>${spring-integration-dsl.version}</version>
 			</dependency>
 			<!-- required by com.ecwid.consul but not as a pom dependency -->
 			<dependency>
