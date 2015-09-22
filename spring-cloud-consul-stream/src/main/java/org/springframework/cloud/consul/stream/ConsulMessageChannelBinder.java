@@ -30,7 +30,9 @@ import java.util.Properties;
 public class ConsulMessageChannelBinder extends MessageChannelBinderSupport implements DisposableBean {
 	@Override
 	public void bindConsumer(String name, MessageChannel inboundBindTarget, Properties properties) {
-		//throw new UnsupportedOperationException("consul events do not support queues");
+		if (name.startsWith(P2P_NAMED_CHANNEL_TYPE_PREFIX)) {
+			throw new UnsupportedOperationException("consul events do not support queues");
+		}
 	}
 
 	@Override
@@ -42,7 +44,9 @@ public class ConsulMessageChannelBinder extends MessageChannelBinderSupport impl
 
 	@Override
 	public void bindProducer(String name, MessageChannel outboundBindTarget, Properties properties) {
-		//throw new UnsupportedOperationException("consul events do not support queues");
+		if (name.startsWith(P2P_NAMED_CHANNEL_TYPE_PREFIX)) {
+			throw new UnsupportedOperationException("consul events do not support queues");
+		}
 	}
 
 	@Override
