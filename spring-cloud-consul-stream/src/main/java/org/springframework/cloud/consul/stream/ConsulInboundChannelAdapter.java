@@ -21,7 +21,6 @@ import static org.springframework.util.Base64Utils.decodeFromString;
 import java.io.IOException;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.endpoint.MessageProducerSupport;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -33,10 +32,11 @@ import com.ecwid.consul.v1.event.model.Event;
  * @author Spencer Gibb
  */
 public class ConsulInboundChannelAdapter extends MessageProducerSupport {
-	@Autowired
+
 	private EventService eventService;
 
-	public ConsulInboundChannelAdapter() {
+	public ConsulInboundChannelAdapter(EventService eventService) {
+		this.eventService = eventService;
 	}
 
 	// link eventService to sendMessage

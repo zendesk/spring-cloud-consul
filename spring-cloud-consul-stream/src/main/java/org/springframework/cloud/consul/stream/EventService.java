@@ -22,30 +22,33 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import javax.annotation.PostConstruct;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 import com.ecwid.consul.v1.ConsulClient;
 import com.ecwid.consul.v1.QueryParams;
 import com.ecwid.consul.v1.Response;
 import com.ecwid.consul.v1.event.model.Event;
 import com.ecwid.consul.v1.event.model.EventParams;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Value;
 
 /**
  * @author Spencer Gibb
  */
+@Value
 public class EventService {
 
-	@Autowired
-	protected ConsulStreamProperties properties;
+	protected final ConsulStreamProperties properties;
 
-	@Autowired
-	protected ConsulClient consul;
+	protected final ConsulClient consul;
 
-	@Autowired(required = false)
-	protected ObjectMapper objectMapper = new ObjectMapper();
+	protected final ObjectMapper objectMapper;
 
 	private AtomicReference<BigInteger> lastIndex = new AtomicReference<>();
+
+	public EventService(ConsulStreamProperties properties, ConsulClient consul, ObjectMapper objectMapper) {
+		this.properties = properties;
+		this.consul = consul;
+		this.objectMapper = objectMapper;
+	}
 
 	@PostConstruct
 	public void init() {

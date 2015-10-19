@@ -16,7 +16,6 @@
 
 package org.springframework.cloud.consul.stream;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.integration.handler.AbstractReplyProducingMessageHandler;
 import org.springframework.messaging.Message;
 
@@ -25,6 +24,9 @@ import com.ecwid.consul.v1.QueryParams;
 import com.ecwid.consul.v1.Response;
 import com.ecwid.consul.v1.event.model.Event;
 import com.ecwid.consul.v1.event.model.EventParams;
+import org.springframework.util.Base64Utils;
+
+import java.nio.charset.Charset;
 
 /**
  * Adapter that converts and sends Messages as Consul events
@@ -32,15 +34,27 @@ import com.ecwid.consul.v1.event.model.EventParams;
  */
 public class ConsulOutboundEndpoint extends AbstractReplyProducingMessageHandler {
 
-	@Autowired
-	protected ConsulClient consul;
+	protected final ConsulClient consul;
+
+	public ConsulOutboundEndpoint(ConsulClient consul) {
+		this.consul = consul;
+	}
 
 	@Override
 	protected Object handleRequestMessage(Message<?> requestMessage) {
 		Object payload = requestMessage.getPayload();
 		// TODO: support headers
 		// TODO: support consul event filters: NodeFilter, ServiceFilter, TagFilter
-		Response<Event> event = consul.eventFire("springCloudBus", (String) payload,
+
+		String encodedPayload = null;
+
+		if (payload instanceof byte[]) {
+			encodedPayload = new String((byte[])payload, Charset.forName("UTF-8"));
+		} else {
+			throw new RuntimeException("Unable to encode payload of type: "+payload.getClass());
+		}
+
+		Response<Event> event = consul.eventFire("springCloudBus", encodedPayload,
 				new EventParams(), QueryParams.DEFAULT);
 		// TODO: return event?
 		return null;

@@ -20,6 +20,9 @@ import org.springframework.cloud.stream.binder.Binder;
 import org.springframework.cloud.stream.binder.PartitionCapableBinderTests;
 import org.springframework.cloud.stream.binder.Spy;
 
+import com.ecwid.consul.v1.ConsulClient;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * @author Spencer Gibb
  */
@@ -45,8 +48,14 @@ public class ConsulBinderTests extends PartitionCapableBinderTests {
 	@Override
 	protected Binder getBinder() throws Exception {
 		if (binder == null) {
-			binder = new ConsulTestBinder();
+			EventService eventService = new EventService(new ConsulStreamProperties(), new ConsulClient(), new ObjectMapper());
+			binder = new ConsulTestBinder(eventService);
 		}
 		return binder;
+	}
+
+	@Override
+	protected void binderBindUnbindLatency() throws InterruptedException {
+		Thread.sleep(1000);
 	}
 }

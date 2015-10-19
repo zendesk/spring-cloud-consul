@@ -30,8 +30,8 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
  */
 public class ConsulTestBinder extends AbstractTestBinder<ConsulMessageChannelBinder> {
 
-	public ConsulTestBinder() {
-		ConsulMessageChannelBinder binder = new ConsulMessageChannelBinder();
+	public ConsulTestBinder(EventService eventService) {
+		ConsulMessageChannelBinder binder = new ConsulMessageChannelBinder(eventService);
 		GenericApplicationContext context = new GenericApplicationContext();
 		context.getBeanFactory().registerSingleton(IntegrationUtils.INTEGRATION_MESSAGE_BUILDER_FACTORY_BEAN_NAME,
 				new DefaultMessageBuilderFactory());
