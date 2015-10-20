@@ -20,6 +20,11 @@ import static org.springframework.util.Base64Utils.decodeFromString;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.integration.endpoint.MessageProducerSupport;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -34,9 +39,12 @@ import com.ecwid.consul.v1.event.model.Event;
 public class ConsulInboundChannelAdapter extends MessageProducerSupport {
 
 	private EventService eventService;
+	private final ScheduledExecutorService executor;
+	private ScheduledFuture<?> future;
 
 	public ConsulInboundChannelAdapter(EventService eventService) {
 		this.eventService = eventService;
+		this.executor = Executors.newScheduledThreadPool(1);
 	}
 
 	// link eventService to sendMessage
@@ -57,22 +65,28 @@ public class ConsulInboundChannelAdapter extends MessageProducerSupport {
 
 	@Override
 	protected void doStart() {
-	}
-
-	@Scheduled(fixedDelayString = "${spring.cloud.consul.bus.eventDelay:10}")
-	public void getEvents() throws IOException {
-		List<Event> events = eventService.watch();
-		for (Event event : events) {
-			// Map<String, Object> headers = new HashMap<>();
-			// headers.put(MessageHeaders.REPLY_CHANNEL, outputChannel.)
-			String decoded = new String(decodeFromString(event.getPayload()));
-			sendMessage(getMessageBuilderFactory().withPayload(decoded)
-			// TODO: support headers
-					.build());
-		}
+		future = executor.scheduleAtFixedRate(new Runnable() {
+			@Override
+			public void run() {
+				List<Event> events = eventService.watch();
+				for (Event event : events) {
+					// Map<String, Object> headers = new HashMap<>();
+					// headers.put(MessageHeaders.REPLY_CHANNEL, outputChannel.)
+					byte[] bytes = decodeFromString(event.getPayload());
+					String decoded = new String(bytes);
+					bytes = decodeFromString(decoded);
+					sendMessage(getMessageBuilderFactory().withPayload(bytes)
+							// TODO: support headers
+							.build());
+				}
+			}
+		}, 10, 10, TimeUnit.MILLISECONDS);
 	}
 
 	@Override
 	protected void doStop() {
+		if (future != null) {
+			future.cancel(true);
+		}
 	}
 }

@@ -52,7 +52,17 @@ public class EventService {
 
 	@PostConstruct
 	public void init() {
-		setLastIndex(getEventsResponse());
+		Response<List<Event>> response = getEventsResponse();
+		if (response.getConsulIndex() != null) {
+			setLastIndex(response);
+		} else {
+			List<Event> events = response.getValue();
+			if (!events.isEmpty()) {
+				Event event = events.get(events.size() - 1);
+				BigInteger index = toIndex(event.getId());
+				lastIndex.set(index);
+			}
+		}
 	}
 
 	private void setLastIndex(Response<?> response) {

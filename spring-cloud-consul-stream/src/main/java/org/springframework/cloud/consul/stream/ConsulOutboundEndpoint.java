@@ -49,7 +49,7 @@ public class ConsulOutboundEndpoint extends AbstractReplyProducingMessageHandler
 		String encodedPayload = null;
 
 		if (payload instanceof byte[]) {
-			encodedPayload = new String((byte[])payload, Charset.forName("UTF-8"));
+			encodedPayload = Base64Utils.encodeToString((byte[]) payload);
 		} else {
 			throw new RuntimeException("Unable to encode payload of type: "+payload.getClass());
 		}

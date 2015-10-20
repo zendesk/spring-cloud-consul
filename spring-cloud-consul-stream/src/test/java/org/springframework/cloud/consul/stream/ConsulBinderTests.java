@@ -16,7 +16,9 @@
 
 package org.springframework.cloud.consul.stream;
 
+import org.springframework.cloud.stream.binder.AbstractBinderTests;
 import org.springframework.cloud.stream.binder.Binder;
+import org.springframework.cloud.stream.binder.BrokerBinderTests;
 import org.springframework.cloud.stream.binder.PartitionCapableBinderTests;
 import org.springframework.cloud.stream.binder.Spy;
 
@@ -26,29 +28,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 /**
  * @author Spencer Gibb
  */
-public class ConsulBinderTests extends PartitionCapableBinderTests {
+public class ConsulBinderTests extends AbstractBinderTests {
 
 	private Binder binder;
-
-	@Override
-	protected boolean usesExplicitRouting() {
-		return true;
-	}
-
-	@Override
-	protected String getClassUnderTestName() {
-		return ConsulMessageChannelBinder.class.getSimpleName();
-	}
-
-	@Override
-	public Spy spyOn(String name) {
-		return null;
-	}
 
 	@Override
 	protected Binder getBinder() throws Exception {
 		if (binder == null) {
 			EventService eventService = new EventService(new ConsulStreamProperties(), new ConsulClient(), new ObjectMapper());
+			eventService.init();
 			binder = new ConsulTestBinder(eventService);
 		}
 		return binder;
@@ -56,6 +44,6 @@ public class ConsulBinderTests extends PartitionCapableBinderTests {
 
 	@Override
 	protected void binderBindUnbindLatency() throws InterruptedException {
-		Thread.sleep(1000);
+		//Thread.sleep(200);
 	}
 }
