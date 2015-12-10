@@ -19,6 +19,7 @@ package org.springframework.cloud.consul.discovery;
 import com.ecwid.consul.v1.ConsulClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -47,22 +48,26 @@ public class ConsulDiscoveryClientConfiguration {
 	private ServerProperties serverProperties;
 
 	@Bean
+	@ConditionalOnMissingBean
 	public ConsulLifecycle consulLifecycle() {
 		return new ConsulLifecycle(consulClient, lifecycleProperties, discoveryProperties, heartbeatProperties);
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	@ConditionalOnProperty("spring.cloud.consul.discovery.heartbeat.enabled")
 	public TtlScheduler ttlScheduler() {
 		return new TtlScheduler(heartbeatProperties, consulClient);
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public ConsulDiscoveryClient consulDiscoveryClient(ConsulLifecycle consulLifecycle) {
 		return new ConsulDiscoveryClient(consulClient, consulLifecycle, discoveryProperties, serverProperties);
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	public ConsulCatalogWatch consulCatalogWatch() {
 		return new ConsulCatalogWatch(discoveryProperties, consulClient);
 	}
