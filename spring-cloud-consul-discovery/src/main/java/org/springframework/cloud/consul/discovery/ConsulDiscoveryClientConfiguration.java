@@ -19,6 +19,7 @@ package org.springframework.cloud.consul.discovery;
 import com.ecwid.consul.v1.ConsulClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -32,45 +33,42 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnConsulEnabled
 @ConditionalOnProperty(value = "spring.cloud.consul.discovery.enabled", matchIfMissing = true)
-@EnableConfigurationProperties
+@EnableConfigurationProperties({LifecycleProperties.class, ConsulDiscoveryProperties.class, HeartbeatProperties.class})
 public class ConsulDiscoveryClientConfiguration {
 
 	@Autowired
 	private ConsulClient consulClient;
+	@Autowired
+	private LifecycleProperties lifecycleProperties;
+	@Autowired
+	private ConsulDiscoveryProperties discoveryProperties;
+	@Autowired
+	private HeartbeatProperties heartbeatProperties;
+	@Autowired
+	private ServerProperties serverProperties;
 
 	@Bean
+	@ConditionalOnMissingBean
 	public ConsulLifecycle consulLifecycle() {
-		return new ConsulLifecycle(consulClient, lifecycleProperties(), consulDiscoveryProperties(), heartbeatProperties());
+		return new ConsulLifecycle(consulClient, lifecycleProperties, discoveryProperties, heartbeatProperties);
 	}
 
 	@Bean
+	@ConditionalOnMissingBean
 	@ConditionalOnProperty("spring.cloud.consul.discovery.heartbeat.enabled")
 	public TtlScheduler ttlScheduler() {
-		return new TtlScheduler(heartbeatProperties(), consulClient);
+		return new TtlScheduler(heartbeatProperties, consulClient);
 	}
 
 	@Bean
-	public HeartbeatProperties heartbeatProperties() {
-		return new HeartbeatProperties();
+	@ConditionalOnMissingBean
+	public ConsulDiscoveryClient consulDiscoveryClient(ConsulLifecycle consulLifecycle) {
+		return new ConsulDiscoveryClient(consulClient, consulLifecycle, discoveryProperties, serverProperties);
 	}
 
 	@Bean
-	public LifecycleProperties lifecycleProperties() {
-		return new LifecycleProperties();
-	}
-
-	@Bean
-	public ConsulDiscoveryProperties consulDiscoveryProperties() {
-		return new ConsulDiscoveryProperties();
-	}
-
-	@Bean
-	public ConsulDiscoveryClient consulDiscoveryClient(ServerProperties serverProperties) {
-		return new ConsulDiscoveryClient(consulClient, consulLifecycle(), consulDiscoveryProperties(), serverProperties);
-	}
-
-	@Bean
+	@ConditionalOnMissingBean
 	public ConsulCatalogWatch consulCatalogWatch() {
-		return new ConsulCatalogWatch(consulDiscoveryProperties(), consulClient);
+		return new ConsulCatalogWatch(discoveryProperties, consulClient);
 	}
 }
